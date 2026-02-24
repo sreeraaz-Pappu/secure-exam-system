@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/styles.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h2>Exam Admin</h2>
+      <p>Control Panel</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/questions" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Questions
+      </a>
+      <a href="/admin/results" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Results
+      </a>
+      <a href="/admin/monitor" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Live Monitor
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm w-full" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <span class="page-title">Dashboard</span>
+      <span id="exam-status-badge"></span>
+    </div>
+    <div class="admin-content">
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Registered</div><div class="stat-value" id="s-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">In Exam</div><div class="stat-value text-success" id="s-active-count">—</div></div>
+        <div class="stat-card"><div class="stat-label">Submitted</div><div class="stat-value" id="s-submitted">—</div></div>
+        <div class="stat-card"><div class="stat-label">Violations</div><div class="stat-value text-danger" id="s-violations">—</div></div>
+      </div>
+
+      <!-- Exam Settings -->
+      <div class="card" style="margin-bottom:24px;">
+        <div class="section-header">
+          <h3>Exam Settings</h3>
+          <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Duration (minutes)</label>
+            <input type="number" id="s-duration" class="input" min="1" max="480" value="60">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Allowed Languages</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;" id="lang-checkboxes">
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="python" checked> Python 3</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="javascript" checked> JavaScript</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="java" checked> Java</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="c" checked> C</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="cpp" checked> C++</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Execution Timeout (ms)</label>
+            <input type="number" id="s-timeout" class="input" min="1000" max="30000" value="3000">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Exam Active</label>
+            <select id="s-active" class="input">
+              <option value="false">Inactive</option>
+              <option value="true">Active</option>
+            </select>
+          </div>
+        </div>
+        <div id="settings-msg" class="hidden" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- Quick links -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+        <a href="/admin/questions" class="card" style="text-decoration:none;display:block;cursor:pointer;">
+          <div style="font-weight:600;margin-bottom:4px;">Manage Questions</div>
+          <div class="text-muted" style="font-size:12px;">Add, edit, delete coding questions and test cases</div>
+        </a>
+        <a href="/admin/results" class="card" style="text-decoration:none;display:block;cursor:pointer;">
+          <div style="font-weight:600;margin-bottom:4px;">View Results</div>
+          <div class="text-muted" style="font-size:12px;">Student scores, submissions, violations</div>
+        </a>
+        <a href="/admin/monitor" class="card" style="text-decoration:none;display:block;cursor:pointer;">
+          <div style="font-weight:600;margin-bottom:4px;">Live Monitor</div>
+          <div class="text-muted" style="font-size:12px;">Real-time student activity dashboard</div>
+        </a>
+        <div class="card" style="cursor:pointer;" onclick="exportResults()">
+          <div style="font-weight:600;margin-bottom:4px;">Export Results</div>
+          <div class="text-muted" style="font-size:12px;">Download Excel with all scores and data</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  checkAuth();
+
+  async function checkAuth() {
+    const res = await fetch('/api/auth/admin/status', { credentials: 'include' });
+    if (!res.ok) window.location.href = '/admin';
+    else loadData();
+  }
+
+  async function loadData() {
+    try {
+      const [settingsRes, studentsRes] = await Promise.all([
+        fetch('/api/admin/settings', { credentials: 'include' }),
+        fetch('/api/admin/students', { credentials: 'include' }),
+      ]);
+      const settings = await settingsRes.json();
+      const { students } = await studentsRes.json();
+
+      // Populate settings
+      document.getElementById('s-duration').value = settings.durationMinutes || 60;
+      // Populate language checkboxes
+      const allowed = settings.allowedLanguages || ['python','javascript','java','c','cpp'];
+      document.querySelectorAll('#lang-checkboxes input[type=checkbox]').forEach(cb => {
+        cb.checked = allowed.includes(cb.value);
+      });
+      document.getElementById('s-timeout').value = settings.executionTimeoutMs || 3000;
+      document.getElementById('s-active').value = settings.isActive ? 'true' : 'false';
+
+      const badge = document.getElementById('exam-status-badge');
+      badge.innerHTML = settings.isActive
+        ? '<span class="badge badge-success">● Exam Active</span>'
+        : '<span class="badge badge-danger">● Exam Inactive</span>';
+
+      // Stats
+      document.getElementById('s-total').textContent = students.length;
+      document.getElementById('s-active-count').textContent = students.filter(s => s.status === 'in_exam').length;
+      document.getElementById('s-submitted').textContent = students.filter(s => s.status === 'submitted' || s.status === 'auto_submitted').length;
+      document.getElementById('s-violations').textContent = students.reduce((sum, s) => sum + (s.totalViolations || 0), 0);
+    } catch (e) { console.error(e); }
+  }
+
+  async function saveSettings() {
+    const allowedLanguages = Array.from(
+      document.querySelectorAll('#lang-checkboxes input[type=checkbox]:checked')
+    ).map(cb => cb.value);
+
+    const payload = {
+      durationMinutes: parseInt(document.getElementById('s-duration').value),
+      allowedLanguages: allowedLanguages.length ? allowedLanguages : ['python'],
+      executionTimeoutMs: parseInt(document.getElementById('s-timeout').value),
+      isActive: document.getElementById('s-active').value === 'true',
+      maxViolationsBeforeSubmit: 2,
+    };
+    const res = await fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: 'include',
+    });
+    const msg = document.getElementById('settings-msg');
+    msg.classList.remove('hidden', 'alert-danger', 'alert-success');
+    if (res.ok) {
+      msg.className = 'alert alert-success';
+      msg.textContent = 'Settings saved successfully.';
+      loadData();
+    } else {
+      msg.className = 'alert alert-danger';
+      msg.textContent = 'Failed to save settings.';
+    }
+    setTimeout(() => msg.classList.add('hidden'), 3000);
+  }
+
+  function exportResults() {
+    window.open('/api/admin/export/results', '_blank');
+  }
+
+  async function logout() {
+    await fetch('/api/auth/admin/logout', { method: 'POST', credentials: 'include' });
+    window.location.href = '/admin';
+  }
+</script>
+</body>
+</html>
