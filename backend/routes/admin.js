@@ -145,6 +145,34 @@ router.get('/results/:studentId/code/:questionId', async (req, res) => {
   res.json(sub);
 });
 
+// ─── Reset Student (allow re-attempt) ─────────────────────────────────────────
+router.delete('/students/:studentId/reset', async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.studentId);
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    // Delete all submissions for this student
+    await Submission.deleteMany({ student: req.params.studentId });
+
+    // Reset student record completely
+    student.status = 'registered';
+    student.hasAttempted = false;
+    student.isLoggedIn = false;
+    student.sessionId = null;
+    student.examStartTime = null;
+    student.examSubmittedAt = null;
+    student.autoSubmitReason = null;
+    student.violations = [];
+    student.totalViolations = 0;
+    await student.save();
+
+    res.json({ success: true, message: `${student.fullName} has been reset. They can now re-attempt the exam.` });
+  } catch (err) {
+    console.error('Reset error:', err);
+    res.status(500).json({ error: 'Reset failed' });
+  }
+});
+
 // ─── Live Monitor ──────────────────────────────────────────────────────────────
 router.get('/monitor', async (req, res) => {
   const students = await Student.find({ hasAttempted: true })

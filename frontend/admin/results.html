@@ -142,12 +142,16 @@
                 <div><span class="text-muted" style="font-size:12px;">Login Time:</span> <span style="font-size:12px;">${r.loginTime ? new Date(r.loginTime).toLocaleString() : '—'}</span></div>
                 <div><span class="text-muted" style="font-size:12px;">Auto Submit:</span> <span style="font-size:12px;">${r.autoSubmitted ? 'Yes' : 'No'}</span></div>
               </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                 ${r.submissions.map(s => `
                   <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewCode('${r._id}','${s.questionOrder}','${escHtml(r.rollNumber)}',${JSON.stringify(s).replace(/"/g,'&quot;')})">
                     View Q${s.questionOrder} Code (${s.testCasesPassed}/${s.totalTestCases} passed)
                   </button>
                 `).join('')}
+                <button class="btn btn-sm" onclick="event.stopPropagation();resetStudent('${r._id}','${escHtml(r.fullName)}','${escHtml(r.rollNumber)}')"
+                  style="background:rgba(245,101,101,0.15);color:#fc8181;border:1px solid rgba(245,101,101,0.3);margin-left:auto;">
+                  🔄 Reset & Allow Re-attempt
+                </button>
               </div>
             </div>
           </td>
@@ -206,6 +210,26 @@
   }
 
   function getQIdFromOrder(sub, results) { return ''; }
+
+  async function resetStudent(studentId, fullName, rollNumber) {
+    if (!confirm(`Reset ${fullName} (${rollNumber})?\n\nThis will:\n• Delete all their submissions\n• Reset their attempt status\n• Allow them to login and take the exam again\n\nThis cannot be undone!`)) return;
+
+    try {
+      const res = await fetch(`/api/admin/students/${studentId}/reset`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ ${data.message}`);
+        loadResults(); // Refresh the table
+      } else {
+        alert('❌ Reset failed: ' + (data.error || 'Unknown error'));
+      }
+    } catch (e) {
+      alert('❌ Network error. Please try again.');
+    }
+  }
 
   function filterResults() {
     const q = document.getElementById('search').value.toLowerCase();
