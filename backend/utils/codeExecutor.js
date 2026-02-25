@@ -45,8 +45,8 @@ function findJavaCmd(bin) {
   return bin; // fallback
 }
 
-const JAVAC_CMD = findJavaCmd('javac');
-const JAVA_CMD  = findJavaCmd('java');
+const JAVAC_CMD = IS_WIN ? 'C:\\Program Files\\Java\\jdk-23\\bin\\javac.exe' : 'javac';
+const JAVA_CMD  = IS_WIN ? 'C:\\Program Files\\Java\\jdk-23\\bin\\java.exe' : 'java';
 console.log(`[Executor] Java: javac="${JAVAC_CMD}"  java="${JAVA_CMD}"`);
 
 // ─── Security Blacklists ───────────────────────────────────────────────────────
