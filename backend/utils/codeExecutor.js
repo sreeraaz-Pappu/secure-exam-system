@@ -93,7 +93,6 @@ function validateCode(code, language) {
   return { safe: true };
 }
 
-// ─── Generic Process Runner ────────────────────────────────────────────────────
 
 function spawnProcess(cmd, args, input, timeoutMs, filesToClean = []) {
   return new Promise((resolve) => {
